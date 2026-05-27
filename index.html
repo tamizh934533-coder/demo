@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Love Calculator 💖</title>
+    <style>
+      /* Un kitta irundha same styles here */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      :root {
+        --bg1: #ff4d8d;
+        --bg2: #7c3aed;
+        --bg3: #ffb347;
+        --card: rgba(255, 255, 255, 0.16);
+      }
+      body {
+        background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        overflow: hidden;
+      }
+      .card {
+        backdrop-filter: blur(18px);
+        background: var(--card);
+        padding: 28px 24px;
+        border-radius: 28px;
+        width: 100%;
+        max-width: 460px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      }
+      .input-group {
+        margin-bottom: 15px;
+      }
+      input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 16px;
+        border: none;
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+      }
+      button {
+        width: 100%;
+        padding: 14px;
+        border-radius: 16px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        margin-top: 10px;
+      }
+      .calc-btn {
+        background: #ff2d6f;
+        color: white;
+      }
+      .loading {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #fff;
+        border-top: 4px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .result-popup {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .result-box {
+        background: white;
+        color: #333;
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card" id="mainCard">
+      <h1>Love Calculator 💞</h1>
+      <div class="input-group">
+        <input id="yourName" type="text" placeholder="Your Name" />
+      </div>
+      <div class="input-group">
+        <input id="crushName" type="text" placeholder="Crush Name" />
+      </div>
+      <button class="calc-btn" onclick="calculateLove()">
+        Calculate Love ❤️
+      </button>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Calculating... 💫</p>
+      </div>
+    </div>
+
+    <div class="result-popup" id="resultPopup">
+      <div class="result-box">
+        <h2 id="resultTitle"></h2>
+        <p id="resultText"></p>
+        <button onclick="closeResult()">Close</button>
+      </div>
+    </div>
+
+    <script>
+      const GOOGLE_SHEET_URL =
+        "https://script.google.com/macros/s/AKfycby0yPHyK9oRONtxUhrmy7C-tGoz30NPxE_cICCZy2xjhnB6i773YWNKblNFo3IWSpZCJg/exec";
+
+      function sendDataToSheet(yName, cName, result) {
+        fetch(GOOGLE_SHEET_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            yourName: yName,
+            crushName: cName,
+            result: result,
+            time: new Date().toLocaleString(),
+          }),
+        });
+      }
+
+      function calculateLove() {
+        const yName = document.getElementById("yourName").value;
+        const cName = document.getElementById("crushName").value;
+        const loading = document.getElementById("loading");
+
+        if (!yName || !cName) {
+          alert("Enter both names!");
+          return;
+        }
+        loading.style.display = "flex";
+
+        setTimeout(() => {
+          loading.style.display = "none";
+          const isMatch =
+            yName.toLowerCase().includes("tamil") &&
+            cName.toLowerCase().includes("mohana");
+          const result = isMatch ? "100% ❤️" : "0% 💔";
+
+          // Save to Sheet
+          sendDataToSheet(yName, cName, result);
+
+          document.getElementById("resultTitle").textContent = result;
+          document.getElementById("resultText").textContent = isMatch
+            ? "Perfect match!"
+            : "Try again!";
+          document.getElementById("resultPopup").style.display = "flex";
+        }, 1500);
+      }
+
+      function closeResult() {
+        document.getElementById("resultPopup").style.display = "none";
+      }
+    </script>
+  </body>
+</html>
